@@ -1,11 +1,19 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 	"web_app/dao/mysql"
 	"web_app/dao/redis"
 	"web_app/logger"
+	"web_app/routes"
 	"web_app/settings"
 )
 
@@ -39,6 +47,29 @@ func main() {
 	defer redis.Close()
 
 	// 5、 注册路由器
-	// 6、 启动服务
+	r := routes.Setup()
 
+	// 6、 启动服务
+	srv := &http.Server{
+		Addr:    fmt.Sprintf(":%d", viper.GetInt("app.port")),
+		Handler: r,
+	}
+
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			zap.L().Info("listen", zap.Error(err))
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	zap.L().Info("Shutdown Server ...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		zap.L().Info("Server Shutdown", zap.Error(err))
+	}
+	zap.L().Info("Server exiting")
 }
