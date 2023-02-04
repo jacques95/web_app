@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go.uber.org/zap"
 	"web_app/dao/mysql"
+	"web_app/dao/redis"
 	"web_app/logger"
 	"web_app/settings"
 )
@@ -31,6 +32,12 @@ func main() {
 	defer mysql.Close()
 
 	// 4、 初始化 Redis 连接
+	if err := redis.Init(); err != nil {
+		fmt.Printf("init redis failed, err:%v\n", err)
+		return
+	}
+	defer redis.Close()
+
 	// 5、 注册路由器
 	// 6、 启动服务
 
