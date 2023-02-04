@@ -17,7 +17,7 @@ mysql:
   password: "5956"
   db_name: "db_app"
   max_cons: 120
-  max_idle: 5
+  max_idles: 5
 
 redis:
   host: "localhost"
