@@ -13,14 +13,15 @@ import (
 	"runtime/debug"
 	"strings"
 	"time"
+	"web_app/settings"
 )
 
-func Init() (err error) {
+func Init(cfg *settings.LogConfig) (err error) {
 	writeSync := getLogWriter(
-		viper.GetString("log.filename"),
-		viper.GetInt("log.max_size"),
-		viper.GetInt("log.max_backups"),
-		viper.GetInt("log.max_age"),
+		cfg.Filename,
+		cfg.MaxSize,
+		cfg.MaxBackups,
+		cfg.MaxAge,
 	)
 
 	encoder := getEncoder()

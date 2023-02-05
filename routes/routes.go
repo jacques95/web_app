@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
+	"net/http"
 	"web_app/logger"
 )
 
@@ -10,6 +11,9 @@ func Setup() *gin.Engine {
 	r.Use(logger.GinLogger(), logger.GinRecovery(true))
 
 	// custom
+	r.GET("/", func(c *gin.Context) {
+		c.String(http.StatusOK, "ok")
+	})
 
 	return r
 }
